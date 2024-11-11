@@ -1,0 +1,229 @@
+DAA
+
+1 ->   Write a program non-recursive and recursive program to calculate Fibonacci
+numbers and analyze their time and space 
+
+
+#include <iostream>
+using namespace std;
+
+int fibonacci_nonRecursive(int n) {
+    if (n <= 1) {
+        return n;
+    }
+    int a = 0, b = 1, result;
+    for (int i = 2; i <= n; i++) {
+        result = a + b;
+        a = b;
+        b = result;
+    }
+    return result;
+}
+
+int fibonacci_recursive(int n) {
+    if (n <= 1) {
+        return n;
+    }
+    return fibonacci_recursive(n - 1) + fibonacci_recursive(n - 2);
+}
+
+int main() {
+    int n = 10;
+    cout << "nonRecursive Fibonacci of " << n << ": " << fibonacci_nonRecursive(n) << endl;
+    cout << "Recursive Fibonacci of " << n << ": " << fibonacci_recursive(n) << endl;
+    return 0;
+}
+
+
+
+
+2 ->   Write a program to solve a fractional Knapsack problem using a greedy
+method."
+
+#include <iostream>
+#include <vector>
+#include <algorithm>
+
+using namespace std;
+
+// Structure to represent an item with weight and value
+struct Item {
+    int weight;
+    int value;
+
+    // Constructor for easy initialization
+    Item(int w, int v) : weight(w), value(v) {}
+};
+
+// Comparison function to sort items by value-to-weight ratio in descending order
+bool compare(Item a, Item b) {
+    double ratioA = (double)a.value / a.weight;
+    double ratioB = (double)b.value / b.weight;
+    return ratioA > ratioB;
+}
+
+// Function to calculate the maximum profit for the fractional knapsack problem
+double fractionalKnapsack(int capacity, vector<Item> items) {
+    // Sort items based on value-to-weight ratio
+    sort(items.begin(), items.end(), compare);
+
+    double totalValue = 0.0;  // Variable to store the maximum profit
+
+    for (const auto& item : items) {
+        // If the item can be fully taken, take it
+        if (capacity >= item.weight) {
+            capacity -= item.weight;
+            totalValue += item.value;
+        } 
+        // If the item can't be fully taken, take the fractional part of it
+        else {
+            totalValue += item.value * ((double)capacity / item.weight);
+            break;  // Knapsack is full
+        }
+    }
+
+    return totalValue;
+}
+
+// Main function to test the fractional knapsack solution
+int main() {
+    int capacity = 50;  // Maximum capacity of the knapsack
+    vector<Item> items = { {10, 60}, {20, 100}, {30, 120} };  // Example items
+
+    double maxProfit = fractionalKnapsack(capacity, items);
+
+    cout << "Maximum value in Knapsack = " << maxProfit << endl;
+    return 0;
+}
+
+
+
+
+3- >   Write a program to solve a 0-1 Knapsack problem using dynamic
+programming or branch and bound strategy."
+
+
+#include <iostream>
+#include <vector>
+#include <algorithm>
+
+using namespace std;
+
+// Function to solve 0-1 Knapsack problem using dynamic programming
+int knapsack(int capacity, vector<int>& weights, vector<int>& values, int n) {
+    // Create a 2D array to store the maximum profit for each item and capacity
+    vector<vector<int>> dp(n + 1, vector<int>(capacity + 1, 0));
+
+    // Build the dp array in a bottom-up manner
+    for (int i = 1; i <= n; i++) {
+        for (int w = 1; w <= capacity; w++) {
+            if (weights[i - 1] <= w) {
+                // Include the item and see if it's beneficial
+                dp[i][w] = max(dp[i - 1][w], values[i - 1] + dp[i - 1][w - weights[i - 1]]);
+            } else {
+                // Exclude the item
+                dp[i][w] = dp[i - 1][w];
+            }
+        }
+    }
+
+    // The maximum profit will be in the last cell
+    return dp[n][capacity];
+}
+
+// Main function to test the knapsack function
+int main() {
+    int capacity = 50;  // Maximum capacity of knapsack
+    vector<int> weights = {10, 20, 30};  // Weights of items
+    vector<int> values = {60, 100, 120}; // Values of items
+    int n = weights.size();  // Number of items
+
+    int maxProfit = knapsack(capacity, weights, values, n);
+    cout << "Maximum profit in Knapsack = " << maxProfit << endl;
+
+    return 0;
+}
+
+
+
+4- >     Queens problem 
+
+
+
+#include <iostream>
+#include <vector>
+using namespace std;
+
+#define N 8 // Change N to any size for N-Queens problem
+
+// Function to print the board configuration
+void printBoard(const vector<vector<int>>& board) {
+    for (int i = 0; i < N; i++) {
+        for (int j = 0; j < N; j++) {
+            cout << (board[i][j] ? "Q " : ". ");
+        }
+        cout << endl;
+    }
+    cout << endl;
+}
+
+// Function to check if placing a queen at board[row][col] is safe
+bool isSafe(const vector<vector<int>>& board, int row, int col) {
+    // Check the row on the left side
+    for (int i = 0; i < col; i++) {
+        if (board[row][i]) return false;
+    }
+
+    // Check the upper diagonal on the left side
+    for (int i = row, j = col; i >= 0 && j >= 0; i--, j--) {
+        if (board[i][j]) return false;
+    }
+
+    // Check the lower diagonal on the left side
+    for (int i = row, j = col; i < N && j >= 0; i++, j--) {
+        if (board[i][j]) return false;
+    }
+
+    return true;
+}
+
+// Function to solve N-Queens problem using backtracking
+bool solveNQueensUtil(vector<vector<int>>& board, int col) {
+    // If all queens are placed, return true
+    if (col >= N) return true;
+
+    // Try placing the queen in all rows in this column
+    for (int i = 0; i < N; i++) {
+        if (isSafe(board, i, col)) {
+            // Place the queen
+            board[i][col] = 1;
+
+            // Recur to place the next queen
+            if (solveNQueensUtil(board, col + 1)) return true;
+
+            // If placing queen at board[i][col] doesn't lead to a solution,
+            // backtrack by removing the queen
+            board[i][col] = 0;
+        }
+    }
+
+    // If the queen cannot be placed in any row in this column, return false
+    return false;
+}
+
+// Function to solve the N-Queens problem
+void solveNQueens() {
+    vector<vector<int>> board(N, vector<int>(N, 0));
+
+    if (solveNQueensUtil(board, 0)) {
+        printBoard(board);
+    } else {
+        cout << "Solution does not exist for " << N << " queens." << endl;
+    }
+}
+
+// Main function to test the N-Queens solution
+int main() {
+    solveNQueens();
+    return 0;
+}
